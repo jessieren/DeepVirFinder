@@ -76,7 +76,7 @@ The program also supports parallel computing. Using [-c] to specify the number o
      
 ### Predicting a set of metagenomically assembled contigs
     
-    python dvf.py -i ./test/simu_meta_viral0.5.fa -o ./test/ -l 300 -c 2
+    python dvf.py -i ./test/test_meta_CRC_1000seqs.fasta -l 1000 -c 2
     
     
     
