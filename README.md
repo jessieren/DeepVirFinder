@@ -1,7 +1,9 @@
 # DeepVirFinder: Identifying viruses from metagenomic data by deep learning
 
 Version: 1.0
+
 Authors: Jie Ren, Kai Song, Chao Deng, Nathan Ahlgren, Jed Fuhrman, Yi Li, Xiaohui Xie, Ryan Poplin, Fengzhu Sun
+
 Maintainer: Jie Ren renj@usc.edu
 
 
@@ -76,7 +78,7 @@ The program also supports parallel computing. Using [-c] to specify the number o
      
 ### Predicting a set of metagenomically assembled contigs
     
-    python dvf.py -i ./test/test_meta_CRC_1000seqs.fasta -l 1000 -c 2
+    python dvf.py -i ./test/CRC_meta.fa -l 1000 -c 2
     
     
     
