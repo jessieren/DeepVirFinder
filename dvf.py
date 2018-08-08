@@ -15,31 +15,31 @@ import os, sys, optparse, warnings
 
 prog_base = os.path.split(sys.argv[0])[1]
 parser = optparse.OptionParser()
-parser.add_option("-i", "--in", action = "store", type = "string", dest = "inFa", 
+parser.add_option("-i", "--in", action = "store", type = "string", dest = "input_fa", 
                   help = "input fasta file")
 # parser.add_option("-m", "--mod", action = "store", type = "string", dest = "modDir",
 #									default='./', help = "model directory")
-parser.add_option("-o", "--out", action = "store", type = "string", dest = "outDir",
+parser.add_option("-o", "--out", action = "store", type = "string", dest = "output_dir",
 									default='./', help = "output directory")
-parser.add_option("-l", "--len", action = "store", type = "int", dest = "cutoffL",
+parser.add_option("-l", "--len", action = "store", type = "int", dest = "cutoff_len",
 									default=0, help = "predict only for sequence >= lbp?")
-parser.add_option("-c", "--core", action = "store", type = "int", dest = "coreNum",
+parser.add_option("-c", "--core", action = "store", type = "int", dest = "core_num",
 									default=1, help = "number of parallel cores")
 
 (options, args) = parser.parse_args()
-if (options.inFa is None) :
+if (options.input_fa is None) :
 	sys.stderr.write(prog_base + ": ERROR: missing required command-line argument")
 	filelog.write(prog_base + ": ERROR: missing required command-line argument")
 	parser.print_help()
 	sys.exit(0)
 
-inFa = options.inFa
-if options.outDir != './' :
-  outDir = options.outDir
+input_fa = options.input_fa
+if options.output_dir != './' :
+  output_dir = options.output_dir
 else :
-  outDir = os.path.dirname(os.path.abspath(inFa))
-cutoffL = options.cutoffL
-coreNum = options.coreNum
+  output_dir = os.path.dirname(os.path.abspath(input_fa))
+cutoff_len = options.cutoff_len
+core_num = options.core_num
 
 
 #### Step 0: import keras libraries ####
@@ -139,7 +139,7 @@ for contigLengthk in ['0.15', '0.3', '0.5', '1'] :
 #### Step2 : encode sequences in input fasta, and predict scores ####
 
 # clean the output file
-outfile = os.path.join(outDir, os.path.basename(inFa)+'_gt'+str(cutoffL)+'bp_dvfpred.txt')
+outfile = os.path.join(output_dir, os.path.basename(input_fa)+'_gt'+str(cutoff_len)+'bp_dvfpred.txt')
 predF = open(outfile, 'w')
 writef = predF.write('\t'.join(['name', 'len', 'score', 'pvalue'])+'\n')
 predF.close()
@@ -147,7 +147,7 @@ predF = open(outfile, 'a')
 #flushf = predF.flush()
 
 print("2. Encoding and Predicting Sequences.")
-with open(inFa, 'r') as faLines :
+with open(input_fa, 'r') as faLines :
     code = []
     codeR = []
     seqname = []
@@ -167,7 +167,7 @@ with open(inFa, 'r') as faLines :
             flag += 1
         elif flag > 0 and line[0] == '>' :
             countN = seq.count("N")
-            if countN/len(seq) <= 0.3 and len(seq) >= cutoffL : 
+            if countN/len(seq) <= 0.3 and len(seq) >= cutoff_len : 
                 codefw = encodeSeq(seq)
                 seqR = "".join(complement.get(base, base) for base in reversed(seq))
                 codebw = encodeSeq(seqR)
@@ -176,7 +176,7 @@ with open(inFa, 'r') as faLines :
                 seqname.append(head)
                 if len(seqname) % 100 == 0 :
                     print("   processing line "+str(lineNum))
-                    pool = multiprocessing.Pool(coreNum)
+                    pool = multiprocessing.Pool(core_num)
                     head, score, pvalue = zip(*pool.map(pred, range(0, len(code))))
                     pool.close()
                     
@@ -184,7 +184,10 @@ with open(inFa, 'r') as faLines :
                     codeR = []
                     seqname = []
             else :
-                print("   {} has >30% Ns, skipping it".format(head))
+                if countN/len(seq) <= 0.3 :
+                    print("   {} has >30% Ns, skipping it".format(head))
+                else :
+                    print("   {} < {}bp, skipping it".format(head, cutoff_len))
             
             flag = 0
             seq = ''
@@ -192,7 +195,7 @@ with open(inFa, 'r') as faLines :
 
     if flag > 0 :
         countN = seq.count("N")
-        if countN/len(seq) <= 0.3 and len(seq) >= cutoffL : 
+        if countN/len(seq) <= 0.3 and len(seq) >= cutoff_len : 
             codefw = encodeSeq(seq)
             seqR = "".join(complement.get(base, base) for base in reversed(seq))
             codebw = encodeSeq(seqR)
@@ -201,7 +204,7 @@ with open(inFa, 'r') as faLines :
             seqname.append(head)
 
         print("   processing line "+str(lineNum))
-        pool = multiprocessing.Pool(coreNum)
+        pool = multiprocessing.Pool(core_num)
         head, score, pvalue = zip(*pool.map(pred, range(0, len(code))))
         pool.close()
 
