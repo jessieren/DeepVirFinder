@@ -6,7 +6,7 @@ Authors: Jie Ren, Fengzhu Sun
 Maintainer: Jie Ren renj@usc.edu
 
 
-### Description
+## Description
 
 DeepVirFinder predicts viral sequences using deep learning method. 
 The method has good prediction accuracy for short viral sequences, 
@@ -23,14 +23,15 @@ The more flexible CNN model indeed outperforms the k-mer based model on viral se
 
 
 
-### Dependencies
+## Dependencies
 
 DeepVirFinder requires Python 3.6 with the packages of numpy, theano and keras.
 We recommand the use [Miniconda](https://conda.io/miniconda.html) to install all dependencies. 
 After installing Miniconda, simply run
 
+```
 conda install python=3.6 numpy theano keras
-
+```
 
 
 
