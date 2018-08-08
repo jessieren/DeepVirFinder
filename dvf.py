@@ -184,7 +184,7 @@ with open(input_fa, 'r') as faLines :
                     codeR = []
                     seqname = []
             else :
-                if countN/len(seq) <= 0.3 :
+                if countN/len(seq) > 0.3 :
                     print("   {} has >30% Ns, skipping it".format(head))
                 else :
                     print("   {} < {}bp, skipping it".format(head, cutoff_len))
