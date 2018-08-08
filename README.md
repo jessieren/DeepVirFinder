@@ -21,7 +21,6 @@ Thus, the CNN is a natural generalization of k-mer based model.
 The more flexible CNN model indeed outperforms the k-mer based model on viral sequence prediction problem.
 
 
-
 ## Dependencies
 
 DeepVirFinder requires Python 3.6 with the packages of numpy, theano and keras.
@@ -32,22 +31,31 @@ After installing Miniconda, simply run
     conda install python=3.6 numpy theano keras
 
 
+
+## Installation
+
+Download the package by 
+
+    git clone https://github.com/jessieren/DeepVirFinder
+    cd DeepVirFinder
+    
+    
 ## Usage
 
-The input of DeepVirFinder is the fasta file containing the sequences, 
-and the output is a .txt file containing the predicted score and p-values for each input sequences. 
+The input of DeepVirFinder is the fasta file containing the sequences to predict, 
+and the output is a .txt file containing the predicted score and p-value for each of the input sequences. 
 The higher score or lower p-value indicate higher likelihood of being a viral sequence. 
-The p-value is compuated by comparing the score with the distribution of the scores for prokaryotic sequences (null distribution). 
+The p-value is compuated by comparing the predicted score with the null distribution for prokaryotic sequences. 
 
-The output file will be saved in the same directory as the input file by default. Users can also specify the output directory by the option [-o].
+The output file will be in the same directory as the input file by default. Users can also specify the output directory by the option [-o].
 The option [-l] is for setting a minimun sequence length threshold so that sequences shorter than this threshold will not be predicted.
-The program supports parallel computing. Using [-c] to specify the number of threads to use. The default is 1.
+The program also supports parallel computing. Using [-c] to specify the number of threads to use. The default is 1.
 
 
     python dvf.py -i INPUT_FA [-o OUTPUT_DIR] [-l CUTOFF_LEN] [-c CORE_NUM]
 
 
-#### Options
+### Options
       -h, --help            show this help message and exit
       -i INPUT_FA, --in=INPUT_FA
                             input fasta file
@@ -59,6 +67,19 @@ The program supports parallel computing. Using [-c] to specify the number of thr
                             number of parallel cores
 
 
+## Examples
+
+### Predicting the crAssphage genome
+
+    python dvf.py -i ./test/crAssphage.fa -o ./test/ -l 300 -c 2
+    
+     
+### Predicting a set of metagenomically assembled contigs
+    
+    python dvf.py -i ./test/simu_meta_viral0.5.fa -o ./test/ -l 300 -c 2
+    
+    
+    
 
 
 <!-- Copyright and License Information
