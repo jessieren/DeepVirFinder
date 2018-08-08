@@ -1,8 +1,7 @@
-# DeepVirFinder
-Identifying viruses from metagenomic data by deep learning
+# DeepVirFinder: Identifying viruses from metagenomic data by deep learning
 
-Authors: Jie Ren, Fengzhu Sun
-
+Version: 1.0
+Authors: Jie Ren, Kai Song, Chao Deng, Nathan Ahlgren, Jed Fuhrman, Yi Li, Xiaohui Xie, Ryan Poplin, Fengzhu Sun
 Maintainer: Jie Ren renj@usc.edu
 
 
@@ -29,9 +28,36 @@ DeepVirFinder requires Python 3.6 with the packages of numpy, theano and keras.
 We recommand the use [Miniconda](https://conda.io/miniconda.html) to install all dependencies. 
 After installing Miniconda, simply run
 
-```
-conda install python=3.6 numpy theano keras
-```
+
+    conda install python=3.6 numpy theano keras
+
+
+## Usage
+
+The input of DeepVirFinder is the fasta file containing the sequences, 
+and the output is a .txt file containing the predicted score and p-values for each input sequences. 
+The higher score or lower p-value indicate higher likelihood of being a viral sequence. 
+The p-value is compuated by comparing the score with the distribution of the scores for prokaryotic sequences (null distribution). 
+
+The output file will be saved in the same directory as the input file by default. Users can also specify the output directory by the option [-o].
+The option [-l] is for setting a minimun sequence length threshold so that sequences shorter than this threshold will not be predicted.
+The program supports parallel computing. Using [-c] to specify the number of threads to use. The default is 1.
+
+
+    python dvf.py -i INPUT_FA [-o OUTPUT_DIR] [-l CUTOFF_LEN] [-c CORE_NUM]
+
+
+#### Options
+      -h, --help            show this help message and exit
+      -i INPUT_FA, --in=INPUT_FA
+                            input fasta file
+      -o OUTPUT_DIR, --out=OUTPUT_DIR
+                            output directory
+      -l CUTOFF_LEN, --len=CUTOFF_LEN
+                            predict only for sequence >= lbp?
+      -c CORE_NUM, --core=CORE_NUM
+                            number of parallel cores
+
 
 
 
