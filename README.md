@@ -89,10 +89,13 @@ The program also supports parallel computing. Using [-c] to specify the number o
 ```
 # load the package qvalue
 library(qvalue)
+
 # read the prediction results
 result <- read.csv("./test/CRC_meta.fa_gt1000bp_dvfpred.txt", sep='\t')
+
 # estimate q-values (false discovery rates) based on p-values
 result$qvalue <- qvalue(result$pvalue)$qvalues
+
 # sort sequences by q-value in ascending order
 result[order(result$qvalue),]
 ```
