@@ -57,7 +57,7 @@ The program also supports parallel computing. Using [-c] to specify the number o
     python dvf.py -i INPUT_FA [-o OUTPUT_DIR] [-l CUTOFF_LEN] [-c CORE_NUM]
 
 
-### Options
+#### Options
       -h, --help            show this help message and exit
       -i INPUT_FA, --in=INPUT_FA
                             input fasta file
@@ -71,12 +71,12 @@ The program also supports parallel computing. Using [-c] to specify the number o
 
 ## Examples
 
-### Predicting the crAssphage genome
+#### Predicting the crAssphage genome
 
     python dvf.py -i ./test/crAssphage.fa -o ./test/ -l 300 -c 2
     
      
-### Predicting a set of metagenomically assembled contigs
+#### Predicting a set of metagenomically assembled contigs
     
     python dvf.py -i ./test/CRC_meta.fa -l 1000 -c 2
     
