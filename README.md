@@ -86,6 +86,16 @@ The program also supports parallel computing. Using [-c] to specify the number o
 
 1. If you would like to compute q-values (false discovery rate), please use the R package "qvalue". 
 
+  To install the package "qvalue" in R:
+
+  ```
+  # try http:// if https:// URLs are not supported; it also checks for out-of-date packages
+  source("https://bioconductor.org/biocLite.R")
+  biocLite("qvalue")
+  ```
+  
+  To compute the q-values, load the package and call the function 'qvalue'. For example, 
+
   ```
   # load the package qvalue
   library(qvalue)
@@ -100,13 +110,7 @@ The program also supports parallel computing. Using [-c] to specify the number o
   result[order(result$qvalue),]
   ```
 
-  To install the package "qvalue" in R:
 
-  ```
-  # try http:// if https:// URLs are not supported; it also checks for out-of-date packages
-  source("https://bioconductor.org/biocLite.R")
-  biocLite("qvalue")
-  ```
 
 <!-- Copyright and License Information
 -----------------------------------
