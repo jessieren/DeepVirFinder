@@ -100,7 +100,7 @@ result$qvalue <- qvalue(result$pvalue)$qvalues
 result[order(result$qvalue),]
 ```
 
-To install the package "qvalue" in R:
+  To install the package "qvalue" in R:
 
 ```
 # try http:// if https:// URLs are not supported; it also checks for out-of-date packages
