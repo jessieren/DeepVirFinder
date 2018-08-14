@@ -81,7 +81,25 @@ The program also supports parallel computing. Using [-c] to specify the number o
     python dvf.py -i ./test/CRC_meta.fa -l 1000 -c 2
     
     
-    
+
+## Notes
+
+1. If you would like to compute q-values (false discovery rate), please use the R package "qvalue". 
+
+    # load the package qvalue
+    library(qvalue)
+    # read the prediction results
+    result <- read.csv("./test/CRC_meta.fa_gt1000bp_dvfpred.txt", sep='\t')
+    # estimate q-values (false discovery rates) based on p-values
+    result$qvalue <- qvalue(result$pvalue)$qvalues
+    # sort sequences by q-value in ascending order
+    result[order(result$qvalue),]
+
+
+To install the package "qvalue", 
+    # try http:// if https:// URLs are not supported; it also checks for out-of-date packages
+    source("https://bioconductor.org/biocLite.R")
+    biocLite("qvalue")
 
 
 <!-- Copyright and License Information
