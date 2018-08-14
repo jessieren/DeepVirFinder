@@ -85,7 +85,7 @@ The program also supports parallel computing. Using [-c] to specify the number o
 ## Notes
 
 1. If you would like to compute q-values (false discovery rate), please use the R package "qvalue". 
-
+```
     # load the package qvalue
     library(qvalue)
     # read the prediction results
@@ -94,13 +94,14 @@ The program also supports parallel computing. Using [-c] to specify the number o
     result$qvalue <- qvalue(result$pvalue)$qvalues
     # sort sequences by q-value in ascending order
     result[order(result$qvalue),]
-
+```
 
 To install the package "qvalue", 
+```
     # try http:// if https:// URLs are not supported; it also checks for out-of-date packages
     source("https://bioconductor.org/biocLite.R")
     biocLite("qvalue")
-
+```
 
 <!-- Copyright and License Information
 -----------------------------------
