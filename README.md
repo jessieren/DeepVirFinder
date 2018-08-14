@@ -84,7 +84,7 @@ The program also supports parallel computing. Using [-c] to specify the number o
 
 ## Notes
 
-1. If you would like to compute q-values (false discovery rate), please use the R package "qvalue". 
+#### If you would like to compute q-values (false discovery rate), please use the R package "qvalue". 
 
   To install the package "qvalue" in R:
 
