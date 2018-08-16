@@ -64,7 +64,7 @@ The program also supports parallel computing. Using [-c] to specify the number o
       -o OUTPUT_DIR, --out=OUTPUT_DIR
                             output directory
       -l CUTOFF_LEN, --len=CUTOFF_LEN
-                            predict only for sequence >= lbp?
+                            predict only for sequence >= L bp?
       -c CORE_NUM, --core=CORE_NUM
                             number of parallel cores
 
@@ -73,7 +73,7 @@ The program also supports parallel computing. Using [-c] to specify the number o
 
 #### Predicting the crAssphage genome
 
-    python dvf.py -i ./test/crAssphage.fa -o ./test/ -l 300 -c 2
+    python dvf.py -i ./test/crAssphage.fa -o ./test/ -l 300
     
      
 #### Predicting a set of metagenomically assembled contigs
