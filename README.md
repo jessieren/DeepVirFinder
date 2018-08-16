@@ -64,9 +64,9 @@ The program also supports parallel computing. Using [-c] to specify the number o
       -o OUTPUT_DIR, --out=OUTPUT_DIR
                             output directory
       -l CUTOFF_LEN, --len=CUTOFF_LEN
-                            predict only for sequence >= L bp?
+                            predict only for sequence >= L bp (default 0)
       -c CORE_NUM, --core=CORE_NUM
-                            number of parallel cores
+                            number of parallel cores (default 1)
 
 
 ## Examples
