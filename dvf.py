@@ -22,9 +22,9 @@ parser.add_option("-i", "--in", action = "store", type = "string", dest = "input
 parser.add_option("-o", "--out", action = "store", type = "string", dest = "output_dir",
 									default='./', help = "output directory")
 parser.add_option("-l", "--len", action = "store", type = "int", dest = "cutoff_len",
-									default=0, help = "predict only for sequence >= lbp?")
+									default=1, help = "predict only for sequence >= L bp (default 1)")
 parser.add_option("-c", "--core", action = "store", type = "int", dest = "core_num",
-									default=1, help = "number of parallel cores")
+									default=1, help = "number of parallel cores (default 1)")
 
 (options, args) = parser.parse_args()
 if (options.input_fa is None) :
