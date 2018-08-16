@@ -52,6 +52,8 @@ The p-value is compuated by comparing the predicted score with the null distribu
 The output file will be in the same directory as the input file by default. Users can also specify the output directory by the option [-o].
 The option [-l] is for setting a minimun sequence length threshold so that sequences shorter than this threshold will not be predicted.
 The program also supports parallel computing. Using [-c] to specify the number of threads to use. 
+
+
     python dvf.py -i INPUT_FA [-o OUTPUT_DIR] [-l CUTOFF_LEN] [-c CORE_NUM]
 
 
