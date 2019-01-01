@@ -4,7 +4,7 @@ Version: 1.0
 
 Authors: Jie Ren, Kai Song, Chao Deng, Nathan Ahlgren, Jed Fuhrman, Yi Li, Xiaohui Xie, Ryan Poplin, Fengzhu Sun
 
-Maintainer: Jie Ren renj@usc.edu
+Maintainer: Jie Ren renj@usc.edu, Chao Deng chaodeng@usc.edu
 
 
 ## Description
@@ -57,6 +57,7 @@ The p-value is compuated by comparing the predicted score with the null distribu
 The output file will be in the same directory as the input file by default. Users can also specify the output directory by the option [-o].
 The option [-l] is for setting a minimun sequence length threshold so that sequences shorter than this threshold will not be predicted.
 The program also supports parallel computing. Using [-c] to specify the number of threads to use. 
+The option [-m] is for specifying the directory to the models. The default model directory is ./models, which contains the models we trained and used in the paper.
 
 
     python dvf.py [-i INPUT_FA] [-o OUTPUT_DIR] [-l CUTOFF_LEN] [-c CORE_NUM]
@@ -114,18 +115,19 @@ The program also supports parallel computing. Using [-c] to specify the number o
   result[order(result$qvalue),]
   ```
 
-## Retrain the model using customized dataset
+## Training the model using customized dataset
 
 If users are interested in training a new deep learning model using their own dataset, 
 we provide the scripts for processing the genomic data and training the model. 
 Four fasta files are needed for training the model: 
-  (1) the host genomic sequences for training, 
-  (2) the host genomic sequences for validation, 
-  (3) the virus genomic sequences for training, and 
-  (4) the virus genomic sequences for validation.
+  1. the host genomic sequences for training, 
+  2. the host genomic sequences for validation, 
+  3. the virus genomic sequences for training, and 
+  4. the virus genomic sequences for validation.
  
-The script encode.py processes the input genomic sequences by fragmenting them into fixed length sequences, 
-and encoding them by one-hot encoding method. 
+The script encode.py processes the input genomic sequences by fragmenting them into fixed length sequences [-l], 
+and encoding them by one-hot encoding method. The contig type [-p] indicates the type of the sequences, virus or host. 
+This indicator will be encoded into the file name and will be used in the following steps for data type recognition.
 
 #### Options
       -h, --help            show this help message and exit
@@ -137,7 +139,9 @@ and encoding them by one-hot encoding method.
                             contigType, virus or host
 
 The script training.py takes the encoded sequences and trains a deep learning model for classifying viruses from hosts. 
-The hyperparameters include the number of convolutional 
+The directory of the encoded training data [-i] and the directory of the encoded validation data [-j] need to be specified. 
+Hyperparameters of the deep learning model include the number of filters in the convolutional layer [-n], the length of the filter [-f], and the number of neurons in the dense layer [-d]. 
+Since viral sequences in real data can be of various lengths, we train multiple models using sequences of different lengths, say 150, 300, 500, 1000 bp for predicting sequences of different length range. The option [-l] specifies the length of the sequences used for training. 
 
 #### Options
       -h, --help            show this help message and exit
@@ -150,13 +154,15 @@ The hyperparameters include the number of convolutional
       -o OUTDIR, --out=OUTDIR
                             output directory
       -f FILTER_LEN1, --fLen1=FILTER_LEN1
-                            the length of filter
+                            the length of the filter
       -n NB_FILTER1, --fNum1=NB_FILTER1
                             number of filters in the convolutional layer
       -d NB_DENSE, --dense=NB_DENSE
                             number of neurons in the dense layer
       -e EPOCHS, --epochs=EPOCHS
                             number of epochs
+
+### Example
 
 We prepared an example for a test:
 
