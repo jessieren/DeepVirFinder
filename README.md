@@ -25,12 +25,17 @@ The more flexible CNN model indeed outperforms the k-mer based model on viral se
 
 ## Dependencies
 
-DeepVirFinder requires Python 3.6 with the packages of numpy, theano and keras.
+DeepVirFinder requires Python 3.6 with the packages of numpy, theano, keras, scikit-learn, and Biopython.
 We recommand the use [Miniconda](https://conda.io/miniconda.html) to install all dependencies. 
 After installing Miniconda, simply run
 
 
-    conda install python=3.6 numpy theano keras
+    conda install python=3.6 numpy theano keras scikit-learn Biopython
+    
+or create a virtual environment
+
+    conda create --name dvf python=3.6 numpy theano keras scikit-learn Biopython
+    source activate dvf
 
 
 
@@ -54,13 +59,15 @@ The option [-l] is for setting a minimun sequence length threshold so that seque
 The program also supports parallel computing. Using [-c] to specify the number of threads to use. 
 
 
-    python dvf.py -i INPUT_FA [-o OUTPUT_DIR] [-l CUTOFF_LEN] [-c CORE_NUM]
+    python dvf.py [-i INPUT_FA] [-o OUTPUT_DIR] [-l CUTOFF_LEN] [-c CORE_NUM]
 
 
 #### Options
       -h, --help            show this help message and exit
       -i INPUT_FA, --in=INPUT_FA
                             input fasta file
+      -m MODDIR, --mod=MODDIR
+                            model directory (default ./models)
       -o OUTPUT_DIR, --out=OUTPUT_DIR
                             output directory
       -l CUTOFF_LEN, --len=CUTOFF_LEN
@@ -80,9 +87,6 @@ The program also supports parallel computing. Using [-c] to specify the number o
     
     python dvf.py -i ./test/CRC_meta.fa -l 1000 -c 2
     
-    
-
-## Notes
 
 #### If you would like to compute q-values (false discovery rate), please use the R package "qvalue". 
 
@@ -109,6 +113,75 @@ The program also supports parallel computing. Using [-c] to specify the number o
   # sort sequences by q-value in ascending order
   result[order(result$qvalue),]
   ```
+
+## Retrain the model using customized dataset
+
+If users are interested in training a new deep learning model using their own dataset, 
+we provide the scripts for processing the genomic data and training the model. 
+Four fasta files are needed for training the model: 
+  (1) the host genomic sequences for training, 
+  (2) the host genomic sequences for validation, 
+  (3) the virus genomic sequences for training, and 
+  (4) the virus genomic sequences for validation.
+ 
+The script encode.py processes the input genomic sequences by fragmenting them into fixed length sequences, 
+and encoding them by one-hot encoding method. 
+
+#### Options
+      -h, --help            show this help message and exit
+      -i FILENAME, --fileName=FILENAME
+                            fileName
+      -l CONTIGLENGTH, --contigLength=CONTIGLENGTH
+                            contigLength
+      -p CONTIGTYPE, --contigType=CONTIGTYPE
+                            contigType, virus or host
+
+The script training.py takes the encoded sequences and trains a deep learning model for classifying viruses from hosts. 
+The hyperparameters include the number of convolutional 
+
+#### Options
+      -h, --help            show this help message and exit
+      -l CONTIGLENGTH, --len=CONTIGLENGTH
+                            contig Length
+      -i INDIRTR, --intr=INDIRTR
+                            input directory for training data
+      -j INDIRVAL, --inval=INDIRVAL
+                            input directory for validation data
+      -o OUTDIR, --out=OUTDIR
+                            output directory
+      -f FILTER_LEN1, --fLen1=FILTER_LEN1
+                            the length of filter
+      -n NB_FILTER1, --fNum1=NB_FILTER1
+                            number of filters in the convolutional layer
+      -d NB_DENSE, --dense=NB_DENSE
+                            number of neurons in the dense layer
+      -e EPOCHS, --epochs=EPOCHS
+                            number of epochs
+
+We prepared an example for a test:
+
+    # encoding sequences for training and validation (may take about 5 minutes)
+    for l in 150 300 500 1000 
+    do 
+    python encode.py -i ./train_example/tr/host_tr.fa -l $l -p host
+    python encode.py -i ./train_example/tr/virus_tr.fa -l $l -p virus
+    
+    python encode.py -i ./train_example/val/host_val.fa -l $l -p host
+    python encode.py -i ./train_example/val/virus_val.fa -l $l -p virus
+    done
+
+    # training the model for different contig lengths
+    # Using GPU, in total the process takes about 30 minutes
+    source /<path_to_cuda_setup>/setup.sh
+    source /<path_to_cuDNN_setup>/setup.sh
+    for l in 150 300 500 1000 
+    do 
+    THEANO_FLAGS='mode=FAST_RUN,device=cuda0,floatX=float32,GPUARRAY_CUDA_VERSION=80' srun python training.py -l $l -i ./train_example/tr/encode -j ./train_example/val/encode -o ./train_example/models -f 10 -n 500 -d 500 -e 10
+    done
+    
+The trained models will be saved in the output directory. To predict sequences using the newly trained model, specify the model directory using the option -m,
+    
+    python dvf.py -i ./test/crAssphage.fa -o ./train_example/test -l 300 -m ./train_example/models
 
 
 

@@ -4,9 +4,9 @@
 # author            :Jie Ren renj@usc.edu
 # date              :20180807
 # version           :1.0
-# usage             :python DVF.py -i <path_to_input_fasta> -o <path_to_output_directory>
+# usage             :python dvf.py -i <path_to_input_fasta> -o <path_to_output_directory>
 # required packages :numpy, theano, keras 
-# conda create -n dvf python=3.6 numpy theano keras  
+# conda create -n dvf python=3.6 numpy theano keras scikit-learn Biopython
 #==============================================================================
 
 
@@ -17,8 +17,9 @@ prog_base = os.path.split(sys.argv[0])[1]
 parser = optparse.OptionParser()
 parser.add_option("-i", "--in", action = "store", type = "string", dest = "input_fa", 
                   help = "input fasta file")
-# parser.add_option("-m", "--mod", action = "store", type = "string", dest = "modDir",
-#									default='./', help = "model directory")
+parser.add_option("-m", "--mod", action = "store", type = "string", dest = "modDir",
+									default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "models"), 
+                  help = "model directory (default ./models)")
 parser.add_option("-o", "--out", action = "store", type = "string", dest = "output_dir",
 									default='./', help = "output directory")
 parser.add_option("-l", "--len", action = "store", type = "int", dest = "cutoff_len",
@@ -38,6 +39,8 @@ if options.output_dir != './' :
   output_dir = options.output_dir
 else :
   output_dir = os.path.dirname(os.path.abspath(input_fa))
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
 cutoff_len = options.cutoff_len
 core_num = options.core_num
 
@@ -112,7 +115,8 @@ def pred(ID) :
 
 #### Step 1: load model ####
 print("1. Loading Models.")
-modDir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models")
+#modDir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models")
+modDir = options.modDir
 print("   model directory {}".format(modDir))
 
 modDict = {}
