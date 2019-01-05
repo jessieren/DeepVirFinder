@@ -27,12 +27,12 @@ The more flexible CNN model indeed outperforms the k-mer based model on viral se
 
 DeepVirFinder requires Python 3.6 with the packages of numpy, theano, keras, scikit-learn, and Biopython.
 We recommand the use [Miniconda](https://conda.io/miniconda.html) to install all dependencies. 
-After installing Miniconda, simply run
+After installing Miniconda, simply run (this may take about 5-10 minutes),
 
 
     conda install python=3.6 numpy theano keras scikit-learn Biopython
     
-or create a virtual environment
+or create a virtual environment 
 
     conda create --name dvf python=3.6 numpy theano keras scikit-learn Biopython
     source activate dvf
@@ -83,10 +83,24 @@ The option [-m] is for specifying the directory to the models. The default model
 
     python dvf.py -i ./test/crAssphage.fa -o ./test/ -l 300
     
+The program takes about 1 minute, and the output of the program should be something like,
+
+    > python dvf.py -i ./test/crAssphage.fa -o ./test/ -l 300
+    Using Theano backend.
+    1. Loading Models.
+       model directory /auto/cmb-panasas2/renj/software/DeepVirFinder/models
+    2. Encoding and Predicting Sequences.
+       processing line 1
+       processing line 1389
+    3. Done. Thank you for using DeepVirFinder.
+       output in ./test/crAssphage.fa_gt300bp_dvfpred.txt
+     
      
 #### Predicting a set of metagenomically assembled contigs
     
     python dvf.py -i ./test/CRC_meta.fa -l 1000 -c 2
+    
+    
     
 
 #### If you would like to compute q-values (false discovery rate), please use the R package "qvalue". 
@@ -164,7 +178,7 @@ Since viral sequences in real data can be of various lengths, we train multiple 
 
 ### Example
 
-We prepared an example for a test:
+We prepared an example for a test. We strongly suggest to use GPU for training otherwise the training will take very long time. 
 
     # Fragmenting sequences into fixed lengths, and encoding them using one-hot encoding (may take about 5 minutes)
     for l in 150 300 500 1000 
