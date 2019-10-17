@@ -209,18 +209,16 @@ The trained models will be saved in the output directory. To predict sequences u
 
 
 
-<!-- Copyright and License Information
+Copyright and License Information
 -----------------------------------
 
-Copyright (C) 2017 University of Southern California
+Copyright (C) 2019 University of Southern California
 
-Authors: Jie Ren, Fengzhu Sun
+Authors: Jie Ren, Kai Song, Chao Deng, Nathan Ahlgren, Jed Fuhrman, Yi Li, Xiaohui Xie, Ryan Poplin, Fengzhu Sun
 
-This program is freely available under the terms of the GNU General Public (version 3) as published by the Free Software Foundation (http://www.gnu.org/licenses/#GPL) for academic use. 
+This program is available under the terms of USC-RL v1.0. 
 
-Commercial users should contact Dr. Sun at fsun@usc.edu, copyright at the University of Southern California. 
-
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. -->
+Commercial users should contact Dr. Sun at fsun@usc.edu, copyright at the University of Southern California.
 
 <!--You should have received a copy of the GNU General Public License along with this program. If not, see http://www.gnu.org/licenses/.-->
 
