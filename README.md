@@ -67,6 +67,8 @@ $ ....wget?
 $ pip install deepvirfinder-1.0.0.tar.gz
 ```
 
+- Python should **really** be 3.6.
+
 Usage for the scripts has changed. They are now executables in your path so
 ```
 $ dvf.py -h
