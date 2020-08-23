@@ -22,6 +22,8 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
                 ],
     include_package_data=True,
+    # works with python 3.6
+    # 3.8 throws some errors so isolated env it is, for now
     python_requires='>=3.6',
 
     # The fine grained versions are the ones
@@ -29,10 +31,11 @@ setuptools.setup(
     # $ conda create -n dvf python=3.6 biopython numpy theano keras scikit-learn
     install_requires=[
                     'biopython>=1.77',
-                    'keras>=2.3.1',
-                    'numpy>=1.17.0',
-                    'scikit-learn>=0.23.1',
-                    'theano>=1.0.4',
+                    'keras==2.3.1',
+                    'numpy==1.17.0',
+                    'scikit-learn==0.23.1',
+                    'tensorflow==1.14.0',
+                    'theano==1.0.4',
                     ],
     scripts=[
         'deepvirfinder/dvf.py',
