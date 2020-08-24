@@ -8,7 +8,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="deepvirfinder",
-    version="1.0.0",
+    version="0.9-beta",
     author="Jie Ren",
     author_email="renj@usc.edu",
     description="Identifying viruses from metagenomic data by deep learning",
@@ -20,17 +20,19 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
-                ],
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7"
+                    ],
     include_package_data=True,
-    # works with python 3.6
-    # 3.8 throws some errors so isolated env it is, for now
-    python_requires='>=3.6',
+    # works with python 3.6, 3.7
+    # 3.8 requires tensorflow >2.0
+    python_requires='>=3.6, <3.8',
 
-    # The fine grained versions are the ones
+    # The exact versions are the ones
     # used during development, installed with
     # $ conda create -n dvf python=3.6 biopython numpy theano keras scikit-learn
     install_requires=[
-                    'biopython>=1.77',
+                    'biopython==1.77',
                     'keras==2.3.1',
                     'numpy==1.17.0',
                     'scikit-learn==0.23.1',

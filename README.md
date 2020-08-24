@@ -54,20 +54,17 @@ I 'd like to see if this gets merged upstream before publishing the package on P
 $ pip install deepvirfinder
 ```
 
-Until then:
+Until then, you 'll need python `python 3.6` or `3.7` :
 ```
 ## Optional
-# If requirements are not met, consider creating a conda environment
-# similar to the original
-$ conda create -n dvf python=3.6 numpy Biopython keras theano scikit-learn
+# If requirements are not met, consider creating an isolated env
+$ conda create -n dvf python=3.6 pip
 
-# Get the archived release from here
+# Get installable distribution from here
 $ ....wget?
 
 $ pip install deepvirfinder-1.0.0.tar.gz
 ```
-
-- Python should **really** be 3.6.
 
 Usage for the scripts has changed. They are now executables in your path so
 ```
