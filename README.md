@@ -1,5 +1,79 @@
 # DeepVirFinder: Identifying viruses from metagenomic data by deep learning
 
+**This is a fork of the original repo available at https://github.com/jessieren/DeepVirFinder .
+It started as a simple packaging effort, but I ended up refactoring some stuff**
+
+Current status
+---
+[WIP]
+
+* Changes:
+  - Restructure directories to conform to [PyPA](https://packaging.python.org/tutorials/packaging-projects/) format.
+  - Only code changes to the `dvf.py` script have been made. These include:
+     - Automatic detection of the models dir, hoping it is useful when pip installed.
+	 - Dropped the `optparse` module in favor of `argparse`.
+	 - Minor refactoring to something more readable
+	 - Reporting on number of sequences and not lines (still with print statements)
+
+
+A minor issue that we can probably live with
+
+Output predictions file is not **exactly** the same. It is the same... but different.
+---
+1. The order of the sequences changes.
+
+2. Some floats of the `score` column are different from the 5th, 6th decimal place onwards. e.g.
+
+Original output:
+```
+$ sort -k1 CRC_meta.fa_gt1000bp_dvfpred.txt | head -n5
+k99_1018714 flag=1 multi=1.0000 len=2227        2227    0.09380443394184113     0.193311428355616
+k99_1025422 flag=1 multi=1.0214 len=1452        1452    0.022117886692285538    0.2880126897801949
+k99_1031044 flag=1 multi=1.0000 len=2909        2909    0.03914860263466835     0.25062315884885566
+k99_1032848 flag=0 multi=1.0372 len=4692        4692    0.4281092882156372      0.08965933982929224
+k99_1042785 flag=1 multi=1.0000 len=1087        1087    0.41907596588134766     0.09203867361583201
+```
+
+With current changes (notice the `*` manually inserted in the 3rd column):
+```
+$ sort -k1 CRC_meta.fa_gt1000bp_dvfpred.txt | head -n5 
+k99_1018714 flag=1 multi=1.0000 len=2227        2227    0.0938044*935464859      0.193311428355616
+k99_1025422 flag=1 multi=1.0214 len=1452        1452    0.0221178*68065834045    0.2880126897801949
+k99_1031044 flag=1 multi=1.0000 len=2909        2909    0.0391486*7341518402     0.25062315884885566
+k99_1032848 flag=0 multi=1.0372 len=4692        4692    0.428109*347820282       0.08965933982929224
+k99_1042785 flag=1 multi=1.0000 len=1087        1087    0.41907596588134766     0.09203867361583201 (<- this is identical)
+```
+
+**No further development is provisioned**
+
+# Eventually, installing with pip
+---
+I 'd like to see if this gets merged upstream before publishing the package on PyPI. Then it's gonna be
+
+```
+$ pip install deepvirfinder
+```
+
+Until then, you 'll need python `python 3.6` or `3.7` :
+```
+## Optional
+# If requirements are not met, consider creating an isolated env
+$ conda create -n dvf python=3.6 pip
+
+# Get installable distribution from here
+$ ....wget?
+
+$ pip install deepvirfinder-1.0.0.tar.gz
+```
+
+Usage for the scripts has changed. They are now executables in your path so
+```
+$ dvf.py -h
+```
+should do it.
+
+----
+
 Version: 1.0
 
 Authors: Jie Ren, Kai Song, Chao Deng, Nathan Ahlgren, Jed Fuhrman, Yi Li, Xiaohui Xie, Ryan Poplin, Fengzhu Sun
