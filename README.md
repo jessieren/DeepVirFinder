@@ -7,7 +7,7 @@ Current status
 ---
 [WIP]
 
-##Changes 
+## Changes 
 
 * Added June 2021 by cerebis:
   - Replaced ad-hoc fasta parsing with Bio.SeqIO for clarity.
