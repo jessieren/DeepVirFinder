@@ -33,6 +33,7 @@ setuptools.setup(
     # $ conda create -n dvf python=3.6 biopython numpy theano keras scikit-learn
     install_requires=[
                     'biopython==1.77',
+                    'tqdm',
                     'keras==2.3.1',
                     'numpy==1.17.0',
                     'scikit-learn==0.23.1',

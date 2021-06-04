@@ -7,7 +7,16 @@ Current status
 ---
 [WIP]
 
-* Changes:
+##Changes 
+
+* Added June 2021 by cerebis:
+  - Replaced ad-hoc fasta parsing with Bio.SeqIO for clarity.
+  - Simplified main processing loop.
+  - Added tqdm progress bar.
+  - Added user control for process batch size (default 10).
+  - Added max length filter to prevent stalled/extremely slow progress when contigs are long (~1Mbp).
+  - Sequences are now referred to in the output by their fasta id alone, not the entire header.
+* Added August 2020 papanikos:
   - Restructure directories to conform to [PyPA](https://packaging.python.org/tutorials/packaging-projects/) format.
   - Only code changes to the `dvf.py` script have been made. These include:
      - Automatic detection of the models dir, hoping it is useful when pip installed.

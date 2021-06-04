@@ -13,8 +13,9 @@ import warnings
 import pkg_resources
 from pathlib import Path
 
+import Bio.SeqIO as SeqIO
 import argparse
-
+import tqdm
 import h5py
 import multiprocessing as mp
 import numpy as np
@@ -78,12 +79,25 @@ def parse_args():
         )
 
     optionalArgs.add_argument(
-        "-l", "--len",
+        "-l", "--min-len",
         type = int,
-        dest = "cutoff_len",
         default = 0,
-        help = "predict only for sequence >= L bp (default : %(default)s)"
+        help = "Minimum length of sequence to analyze (default : %(default)s)"
         )
+
+    optionalArgs.add_argument(
+        "-L", "--max-len",
+        type = int,
+        default = 1000000,
+        help = "Maximum length of sequence to analyze (default : %(default)s)"
+        )
+
+    optionalArgs.add_argument(
+        "-b", "--batch-size",
+        type = int,
+        default = 10,
+        help = "Processing batch size (default : %(default)s)"
+    )
 
     optionalArgs.add_argument(
         "-c", "--cores",
@@ -135,7 +149,8 @@ if __name__ == '__main__':
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    cutoff_len = args.cutoff_len
+    min_len = args.min_len
+    max_len = args.max_len
     core_num = args.core_num
 
     complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A', 'N': 'N'}
@@ -196,69 +211,62 @@ if __name__ == '__main__':
 
         return [head, float(score), float(pvalue)]
 
-    outfile = os.path.join(output_dir, os.path.basename(input_fa)+'_gt'+str(cutoff_len)+'bp_dvfpred.txt')
+    outfile = os.path.join(output_dir, os.path.basename(input_fa)+'_gt'+str(min_len)+'bp_dvfpred.txt')
     predF = open(outfile, 'w')
     writef = predF.write('\t'.join(['name', 'len', 'score', 'pvalue'])+'\n')
     predF.close()
     predF = open(outfile, 'a')
+
+    BATCH_MAX = 10
+
+    print("Counting FASTA sequences")
+    with open(input_fa, "r") as faLines:
+        n_fasta = sum(1 for l in faLines if l.startswith('>'))
 
     print("2. Encoding and Predicting Sequences.")
     with open(input_fa, 'r') as faLines :
         code = []
         codeR = []
         seqname = []
-        head = ''
-        lineNum = 0
-        seq = ''
-        flag = 0
         seq_total = 0
-        for line in faLines :
-            #print(line)
-            lineNum += 1
-            if flag == 0 and line[0] == '>' :
-                head = line.strip()[1:]
-                continue
-            elif line[0] != '>' :
-                seq = seq + line.strip()
-                flag += 1
-            elif flag > 0 and line[0] == '>' :
-                countN = seq.count("N")
-                if countN/len(seq) <= 0.3 and len(seq) >= cutoff_len :
-                    codefw = encodeSeq(seq)
-                    seqR = "".join(complement.get(base, base) for base in reversed(seq))
-                    codebw = encodeSeq(seqR)
-                    code.append(codefw)
-                    codeR.append(codebw)
-                    seqname.append(head)
-                    if len(seqname) % 100 == 0 :
-                        pool = mp.Pool(core_num)
-                        head, score, pvalue = zip(*pool.map(pred, range(0, len(code))))
-                        pool.close()
+        batch_size = 0
 
-                        # Report number of sequences
-                        seq_total += len(seqname)
-                        print("   processed {} sequences".format(seq_total))
-                        code = []
-                        codeR = []
-                        seqname = []
-                else :
-                    if countN/len(seq) > 0.3 :
-                        print("   {} has >30% Ns, skipping it".format(head))
-                    # else :
-                    #    print("   {} < {}bp, skipping it".format(head, cutoff_len))
-                flag = 0
-                seq = ''
-                head = line.strip()[1:]
+        for rec in tqdm.tqdm(SeqIO.parse(faLines, 'fasta'), total=n_fasta, desc='Analysing seqs', smoothing=0.15):
 
-        if flag > 0 :
-            countN = seq.count("N")
-            if countN/len(seq) <= 0.3 and len(seq) >= cutoff_len :
-                codefw = encodeSeq(seq)
-                seqR = "".join(complement.get(base, base) for base in reversed(seq))
-                codebw = encodeSeq(seqR)
-                code.append(codefw)
-                codeR.append(codebw)
-                seqname.append(head)
+            head = rec.id
+            seq = str(rec.seq)
+
+            if seq.count('N') > 0.3 or len(seq) < min_len or len(seq) > max_len:
+                 continue
+
+            batch_size += len(seq)
+
+            codefw = encodeSeq(seq)
+            seqR = "".join(complement.get(base, base) for base in reversed(seq))
+            codebw = encodeSeq(seqR)
+            code.append(codefw)
+            codeR.append(codebw)
+            seqname.append(head)
+            if len(seqname) % BATCH_MAX == 0 :
+                pool = mp.Pool(core_num)
+                head, score, pvalue = zip(*pool.map(pred, range(0, len(code))))
+                pool.close()
+
+                # Report number of sequences
+                seq_total += len(seqname)
+                #print("   processed {} sequences".format(seq_total))
+                code = []
+                codeR = []
+                seqname = []
+                batch_size = 0
+
+        if len(seqname) > 0 :
+            codefw = encodeSeq(seq)
+            seqR = "".join(complement.get(base, base) for base in reversed(seq))
+            codebw = encodeSeq(seqR)
+            code.append(codefw)
+            codeR.append(codebw)
+            seqname.append(head)
 
             pool = mp.Pool(core_num)
             head, score, pvalue = zip(*pool.map(pred, range(0, len(code))))
@@ -267,8 +275,8 @@ if __name__ == '__main__':
             # Report number of sequences
             seq_total += len(seqname)
             print("   processed {} sequences".format(seq_total))
+
     predF.close()
 
     print("3. Done. Thank you for using DeepVirFinder.")
     print("   output in {}".format(outfile))
-
