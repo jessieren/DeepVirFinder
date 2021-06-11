@@ -37,7 +37,7 @@ or create a virtual environment
     conda create --name dvf python=3.6 numpy theano=1.0.3 keras=2.2.4 scikit-learn Biopython "h5py<3"
     source activate dvf
 
-On some architectures, [h5py may not be able to create lock files.](https://github.com/nanoporetech/medaka/issues/240). A workaround for this issue is to disable file locking for h5py.
+On some architectures, [h5py may not be able to create lock files](https://github.com/nanoporetech/medaka/issues/240). A workaround for this issue is to disable file locking for h5py.
 
     export HDF5_USE_FILE_LOCKING='FALSE'
 
