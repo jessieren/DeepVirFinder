@@ -74,7 +74,7 @@ def parse_args():
         "-o", "--out",
         type = str,
         dest = "output_dir",
-        default='./',
+        default='.',
         help = "output directory (default : %(default)s)"
         )
 
@@ -88,7 +88,7 @@ def parse_args():
     optionalArgs.add_argument(
         "-L", "--max-len",
         type = int,
-        default = 1000000,
+        default = None,
         help = "Maximum length of sequence to analyze (default : %(default)s)"
         )
 
@@ -141,10 +141,7 @@ if __name__ == '__main__':
     args = parse_args()
 
     input_fa = args.input_fa
-    if args.output_dir != './':
-        output_dir = args.output_dir
-    else:
-        output_dir = os.path.dirname(os.abspath(input_fa))
+    output_dir = args.output_dir
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -152,6 +149,12 @@ if __name__ == '__main__':
     min_len = args.min_len
     max_len = args.max_len
     core_num = args.core_num
+
+    # filter for sequence length, depending on user choice
+    if args.max_len is None:
+        length_filter = lambda x: x < min_len
+    else:
+        length_filter = lambda x: x < min_len or x > max_len
 
     # set-up string tanslation for complementing DNA
     complement_table = str.maketrans('aAcCgGtTnN',
@@ -213,7 +216,11 @@ if __name__ == '__main__':
 
         return [head, float(score), float(pvalue)]
 
-    outfile = os.path.join(output_dir, os.path.basename(input_fa)+'_gt'+str(min_len)+'bp_dvfpred.txt')
+    if args.max_len is None:
+        out_fname = '{}_gt{}bp_dvfpred.txt'.format(os.path.basename(input_fa), min_len)
+    else:
+        out_fname = '{}_gt{}bp_lt{}bp_dvfpred.txt'.format(os.path.basename(input_fa), min_len, max_len)
+    outfile = os.path.join(output_dir, out_fname)
     predF = open(outfile, 'w')
     writef = predF.write('\t'.join(['name', 'len', 'score', 'pvalue'])+'\n')
     predF.close()
@@ -231,17 +238,14 @@ if __name__ == '__main__':
         codeR = []
         seqname = []
         seq_total = 0
-        batch_size = 0
 
         for rec in tqdm.tqdm(SeqIO.parse(faLines, 'fasta'), total=n_fasta, desc='Analysing seqs'):
 
             head = rec.id
             seq = str(rec.seq)
 
-            if seq.count('N') > 0.3 or len(seq) < min_len or len(seq) > max_len:
+            if seq.count('N') > 0.3 or length_filter(len(seq)):
                  continue
-
-            batch_size += len(seq)
 
             codefw = encodeSeq(seq)
             seqR = seq.translate(complement_table)[::-1]
@@ -249,6 +253,7 @@ if __name__ == '__main__':
             code.append(codefw)
             codeR.append(codebw)
             seqname.append(head)
+
             if len(seqname) % BATCH_MAX == 0 :
                 pool = mp.Pool(core_num)
                 head, score, pvalue = zip(*pool.map(pred, range(0, len(code))))
@@ -256,21 +261,12 @@ if __name__ == '__main__':
 
                 # Report number of sequences
                 seq_total += len(seqname)
-                #print("   processed {} sequences".format(seq_total))
                 code = []
                 codeR = []
                 seqname = []
-                batch_size = 0
 
         # finish off last batch if any
         if len(seqname) > 0 :
-            codefw = encodeSeq(seq)
-            seqR = seq.translate(complement_table)[::-1]
-            codebw = encodeSeq(seqR)
-            code.append(codefw)
-            codeR.append(codebw)
-            seqname.append(head)
-
             pool = mp.Pool(core_num)
             head, score, pvalue = zip(*pool.map(pred, range(0, len(code))))
             pool.close()
