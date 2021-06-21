@@ -1,0 +1,11 @@
+# From https://github.com/pypa/sampleproject/blob/master/.gitignore
+
+# general things to ignore
+build/
+dist/
+*.egg-info/
+*.egg
+*.py[cod]
+__pycache__/
+*.so
+*~

@@ -1,0 +1,5 @@
+include deepvirfinder/models/*.h5
+include deepvirfinder/models/*.txt
+include deepvirfinder/supplementary_tables/*
+include deepvirfinder/test/*
+include deepvirfinder/train_example/*
