@@ -153,7 +153,9 @@ if __name__ == '__main__':
     max_len = args.max_len
     core_num = args.core_num
 
-    complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A', 'N': 'N'}
+    # set-up string tanslation for complementing DNA
+    complement_table = str.maketrans('aAcCgGtTnN',
+                                     'tTgGcCaAnN')
 
     print("1. Loading Models.")
     modDir = args.modDir
@@ -242,7 +244,7 @@ if __name__ == '__main__':
             batch_size += len(seq)
 
             codefw = encodeSeq(seq)
-            seqR = "".join(complement.get(base, base) for base in reversed(seq))
+            seqR = seq.translate(complement_table)[::-1]
             codebw = encodeSeq(seqR)
             code.append(codefw)
             codeR.append(codebw)
@@ -262,7 +264,7 @@ if __name__ == '__main__':
 
         if len(seqname) > 0 :
             codefw = encodeSeq(seq)
-            seqR = "".join(complement.get(base, base) for base in reversed(seq))
+            seqR = seq.translate(complement_table)[::-1]
             codebw = encodeSeq(seqR)
             code.append(codefw)
             codeR.append(codebw)
