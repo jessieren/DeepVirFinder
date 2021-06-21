@@ -219,7 +219,7 @@ if __name__ == '__main__':
     predF.close()
     predF = open(outfile, 'a')
 
-    BATCH_MAX = 10
+    BATCH_MAX = args.batch_size
 
     print("Counting FASTA sequences")
     with open(input_fa, "r") as faLines:
@@ -233,7 +233,7 @@ if __name__ == '__main__':
         seq_total = 0
         batch_size = 0
 
-        for rec in tqdm.tqdm(SeqIO.parse(faLines, 'fasta'), total=n_fasta, desc='Analysing seqs', smoothing=0.15):
+        for rec in tqdm.tqdm(SeqIO.parse(faLines, 'fasta'), total=n_fasta, desc='Analysing seqs'):
 
             head = rec.id
             seq = str(rec.seq)
@@ -262,6 +262,7 @@ if __name__ == '__main__':
                 seqname = []
                 batch_size = 0
 
+        # finish off last batch if any
         if len(seqname) > 0 :
             codefw = encodeSeq(seq)
             seqR = seq.translate(complement_table)[::-1]

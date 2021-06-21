@@ -10,6 +10,7 @@ Current status
 ## Changes 
 
 * Added June 2021 by cerebis:
+  - Replaced revcomp procedure.
   - Replaced ad-hoc fasta parsing with Bio.SeqIO for clarity.
   - Simplified main processing loop.
   - Added tqdm progress bar.
