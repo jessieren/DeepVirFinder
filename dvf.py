@@ -12,11 +12,13 @@
 
 #### Step 0: pass arguments into the program ####
 import os, sys, optparse, warnings
+import gzip
+import bz2
 
 prog_base = os.path.split(sys.argv[0])[1]
 parser = optparse.OptionParser()
 parser.add_option("-i", "--in", action = "store", type = "string", dest = "input_fa", 
-                  help = "input fasta file")
+                  help = "input fasta file, support gzip and bzip2 format")
 parser.add_option("-m", "--mod", action = "store", type = "string", dest = "modDir",
 									default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "models"), 
                   help = "model directory (default ./models)")
@@ -151,53 +153,32 @@ predF = open(outfile, 'a')
 #flushf = predF.flush()
 
 print("2. Encoding and Predicting Sequences.")
-with open(input_fa, 'r') as faLines :
-    code = []
-    codeR = []
-    seqname = []
-    head = ''
-    lineNum = 0
-    seq = ''
-    flag = 0
-    for line in faLines :
-        #print(line)
-        lineNum += 1
-        if flag == 0 and line[0] == '>' :
-            print("   processing line "+str(lineNum))
-            head = line.strip()[1:]
-            continue
-        elif line[0] != '>' :
-            seq = seq + line.strip()
-            flag += 1
-        elif flag > 0 and line[0] == '>' :
-            countN = seq.count("N")
-            if countN/len(seq) <= 0.3 and len(seq) >= cutoff_len : 
-                codefw = encodeSeq(seq)
-                seqR = "".join(complement.get(base, base) for base in reversed(seq))
-                codebw = encodeSeq(seqR)
-                code.append(codefw)
-                codeR.append(codebw)
-                seqname.append(head)
-                if len(seqname) % 100 == 0 :
-                    print("   processing line "+str(lineNum))
-                    pool = multiprocessing.Pool(core_num)
-                    head, score, pvalue = zip(*pool.map(pred, range(0, len(code))))
-                    pool.close()
-                    
-                    code = []
-                    codeR = []
-                    seqname = []
-            else :
-                if countN/len(seq) > 0.3 :
-                    print("   {} has >30% Ns, skipping it".format(head))
-                # else :
-                #    print("   {} < {}bp, skipping it".format(head, cutoff_len))
-            
-            flag = 0
-            seq = ''
-            head = line.strip()[1:]
 
-    if flag > 0 :
+if input_fa.endswith(".gz"):
+    faLines = gzip.open(input_fa, 'rt')
+elif input_fa.endswith(".bz2"):
+    faLines = bz2.open(input_fa, 'rt')
+else:
+    faLines = open(input_fa, 'r')
+
+code = []
+codeR = []
+seqname = []
+head = ''
+lineNum = 0
+seq = ''
+flag = 0
+for line in faLines :
+    #print(line)
+    lineNum += 1
+    if flag == 0 and line[0] == '>' :
+        print("   processing line "+str(lineNum))
+        head = line.strip()[1:]
+        continue
+    elif line[0] != '>' :
+        seq = seq + line.strip()
+        flag += 1
+    elif flag > 0 and line[0] == '>' :
         countN = seq.count("N")
         if countN/len(seq) <= 0.3 and len(seq) >= cutoff_len : 
             codefw = encodeSeq(seq)
@@ -206,13 +187,42 @@ with open(input_fa, 'r') as faLines :
             code.append(codefw)
             codeR.append(codebw)
             seqname.append(head)
+            if len(seqname) % 100 == 0 :
+                print("   processing line "+str(lineNum))
+                pool = multiprocessing.Pool(core_num)
+                head, score, pvalue = zip(*pool.map(pred, range(0, len(code))))
+                pool.close()
+                    
+                code = []
+                codeR = []
+                seqname = []
+        else :
+            if countN/len(seq) > 0.3 :
+                print("   {} has >30% Ns, skipping it".format(head))
+            # else :
+            #    print("   {} < {}bp, skipping it".format(head, cutoff_len))
+            
+        flag = 0
+        seq = ''
+        head = line.strip()[1:]
 
-        print("   processing line "+str(lineNum))
-        pool = multiprocessing.Pool(core_num)
-        head, score, pvalue = zip(*pool.map(pred, range(0, len(code))))
-        pool.close()
+if flag > 0 :
+    countN = seq.count("N")
+    if countN/len(seq) <= 0.3 and len(seq) >= cutoff_len : 
+        codefw = encodeSeq(seq)
+        seqR = "".join(complement.get(base, base) for base in reversed(seq))
+        codebw = encodeSeq(seqR)
+        code.append(codefw)
+        codeR.append(codebw)
+        seqname.append(head)
+
+    print("   processing line "+str(lineNum))
+    pool = multiprocessing.Pool(core_num)
+    head, score, pvalue = zip(*pool.map(pred, range(0, len(code))))
+    pool.close()
 
 predF.close()
+faLines.close()
 
 print("3. Done. Thank you for using DeepVirFinder.")
 print("   output in {}".format(outfile))
