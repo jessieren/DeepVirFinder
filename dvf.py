@@ -12,6 +12,7 @@
 
 #### Step 0: pass arguments into the program ####
 import os, sys, optparse, warnings
+from Bio.Seq import Seq
 
 prog_base = os.path.split(sys.argv[0])[1]
 parser = optparse.OptionParser()
@@ -49,6 +50,9 @@ core_num = options.core_num
 import h5py, multiprocessing
 import numpy as np
 
+import theano
+theano.config.gcc.cxxflags = "-Wno-c++11-narrowing"
+
 os.environ['KERAS_BACKEND'] = 'theano'
 import keras
 from keras.models import load_model
@@ -75,12 +79,6 @@ def encodeSeq(seq) :
             code = [1/4, 1/4, 1/4, 1/4]
         seq_code.append(code)
     return seq_code 
-    
-    
-complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A', 'N': 'N'}
-#seq = "TCGGGCCC"
-#reverse_complement = "".join(complement.get(base, base) for base in reversed(seq))
-  
     
 #### Step 0: function for predicting viral score using the trained model ####
 def pred(ID) :
@@ -173,7 +171,7 @@ with open(input_fa, 'r') as faLines :
             countN = seq.count("N")
             if countN/len(seq) <= 0.3 and len(seq) >= cutoff_len : 
                 codefw = encodeSeq(seq)
-                seqR = "".join(complement.get(base, base) for base in reversed(seq))
+                seqR = Seq(seq).reverse_complement()
                 codebw = encodeSeq(seqR)
                 code.append(codefw)
                 codeR.append(codebw)
@@ -201,7 +199,7 @@ with open(input_fa, 'r') as faLines :
         countN = seq.count("N")
         if countN/len(seq) <= 0.3 and len(seq) >= cutoff_len : 
             codefw = encodeSeq(seq)
-            seqR = "".join(complement.get(base, base) for base in reversed(seq))
+            seqR = Seq(seq).reverse_complement()
             codebw = encodeSeq(seqR)
             code.append(codefw)
             codeR.append(codebw)
