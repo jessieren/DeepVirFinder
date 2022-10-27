@@ -14,6 +14,7 @@
 import os, sys, optparse, warnings
 import gzip
 import bz2
+from Bio.Seq import Seq
 
 prog_base = os.path.split(sys.argv[0])[1]
 parser = optparse.OptionParser()
@@ -51,6 +52,9 @@ core_num = options.core_num
 import h5py, multiprocessing
 import numpy as np
 
+import theano
+theano.config.gcc.cxxflags = "-Wno-c++11-narrowing"
+
 os.environ['KERAS_BACKEND'] = 'theano'
 import keras
 from keras.models import load_model
@@ -77,12 +81,6 @@ def encodeSeq(seq) :
             code = [1/4, 1/4, 1/4, 1/4]
         seq_code.append(code)
     return seq_code 
-    
-    
-complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A', 'N': 'N'}
-#seq = "TCGGGCCC"
-#reverse_complement = "".join(complement.get(base, base) for base in reversed(seq))
-  
     
 #### Step 0: function for predicting viral score using the trained model ####
 def pred(ID) :
@@ -153,14 +151,6 @@ predF = open(outfile, 'a')
 #flushf = predF.flush()
 
 print("2. Encoding and Predicting Sequences.")
-
-if input_fa.endswith(".gz"):
-    faLines = gzip.open(input_fa, 'rt')
-elif input_fa.endswith(".bz2"):
-    faLines = bz2.open(input_fa, 'rt')
-else:
-    faLines = open(input_fa, 'r')
-
 code = []
 codeR = []
 seqname = []
@@ -182,7 +172,7 @@ for line in faLines :
         countN = seq.count("N")
         if countN/len(seq) <= 0.3 and len(seq) >= cutoff_len : 
             codefw = encodeSeq(seq)
-            seqR = "".join(complement.get(base, base) for base in reversed(seq))
+            seqR = Seq(seq).reverse_complement()
             codebw = encodeSeq(seqR)
             code.append(codefw)
             codeR.append(codebw)
@@ -210,7 +200,7 @@ if flag > 0 :
     countN = seq.count("N")
     if countN/len(seq) <= 0.3 and len(seq) >= cutoff_len : 
         codefw = encodeSeq(seq)
-        seqR = "".join(complement.get(base, base) for base in reversed(seq))
+        seqR = Seq(seq).reverse_complement()
         codebw = encodeSeq(seqR)
         code.append(codefw)
         codeR.append(codebw)
@@ -226,12 +216,3 @@ faLines.close()
 
 print("3. Done. Thank you for using DeepVirFinder.")
 print("   output in {}".format(outfile))
-
-
-
-
-
-
-
-
-
