@@ -21,14 +21,14 @@ parser = optparse.OptionParser()
 parser.add_option("-i", "--in", action = "store", type = "string", dest = "input_fa", 
                   help = "input fasta file, support gzip and bzip2 format")
 parser.add_option("-m", "--mod", action = "store", type = "string", dest = "modDir",
-									default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "models"), 
+		  default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "models"), 
                   help = "model directory (default ./models)")
 parser.add_option("-o", "--out", action = "store", type = "string", dest = "output_dir",
-									default='./', help = "output directory")
+		  default='./', help = "output directory")
 parser.add_option("-l", "--len", action = "store", type = "int", dest = "cutoff_len",
-									default=1, help = "predict only for sequence >= L bp (default 1)")
+		  default=1, help = "predict only for sequence >= L bp (default 1)")
 parser.add_option("-c", "--core", action = "store", type = "int", dest = "core_num",
-									default=1, help = "number of parallel cores (default 1)")
+	          default=1, help = "number of parallel cores (default 1)")
 
 (options, args) = parser.parse_args()
 if (options.input_fa is None) :
@@ -143,14 +143,22 @@ for contigLengthk in ['0.15', '0.3', '0.5', '1'] :
 #### Step2 : encode sequences in input fasta, and predict scores ####
 
 # clean the output file
-outfile = os.path.join(output_dir, os.path.basename(input_fa)+'_gt'+str(cutoff_len)+'bp_dvfpred.txt')
+outfile = os.path.join(output_dir, os.path.basename(input_fa) + '_gt' + str(cutoff_len) + 'bp_dvfpred.txt')
 predF = open(outfile, 'w')
-writef = predF.write('\t'.join(['name', 'len', 'score', 'pvalue'])+'\n')
+writef = predF.write('\t'.join(['name', 'len', 'score', 'pvalue']) + '\n')
 predF.close()
 predF = open(outfile, 'a')
 #flushf = predF.flush()
 
 print("2. Encoding and Predicting Sequences.")
+
+if input_fa.endswith(".gz"):
+    faLines = gzip.open(input_fa, 'rt')
+elif input_fa.endswith(".bz2"):
+    faLines = bz2.open(input_fa, 'rt')
+else:
+    faLines = open(input_fa, 'r')
+
 code = []
 codeR = []
 seqname = []
@@ -158,11 +166,12 @@ head = ''
 lineNum = 0
 seq = ''
 flag = 0
+
 for line in faLines :
     #print(line)
     lineNum += 1
     if flag == 0 and line[0] == '>' :
-        print("   processing line "+str(lineNum))
+        print("   processing line " + str(lineNum))
         head = line.strip()[1:]
         continue
     elif line[0] != '>' :
@@ -178,7 +187,7 @@ for line in faLines :
             codeR.append(codebw)
             seqname.append(head)
             if len(seqname) % 100 == 0 :
-                print("   processing line "+str(lineNum))
+                print("   processing line " + str(lineNum))
                 pool = multiprocessing.Pool(core_num)
                 head, score, pvalue = zip(*pool.map(pred, range(0, len(code))))
                 pool.close()
@@ -206,7 +215,7 @@ if flag > 0 :
         codeR.append(codebw)
         seqname.append(head)
 
-    print("   processing line "+str(lineNum))
+    print("   processing line " + str(lineNum))
     pool = multiprocessing.Pool(core_num)
     head, score, pvalue = zip(*pool.map(pred, range(0, len(code))))
     pool.close()
