@@ -121,7 +121,7 @@ def pred(code_tuple):
     pvalue = sum([x>score for x in null])/len(null)
 
     #print('predicting ' + head + ' done')
-    return [head, seqL, score, pvalue]
+    return [head, str(seqL), str(float(score)), str(float(pvalue))]
 
 
 #### Step 1: load model ####
