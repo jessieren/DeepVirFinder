@@ -101,7 +101,7 @@ def pred(code_tuple):
     codefw = code_tuple[1]
     codebw = code_tuple[2]
 
-    print('predicting ' + head)
+    #print('predicting ' + head)
     seqL = len(codefw)
 
     if seqL < 300 :
@@ -120,7 +120,7 @@ def pred(code_tuple):
     score = model.predict([np.array([codefw]), np.array([codebw])], batch_size=1)
     pvalue = sum([x>score for x in null])/len(null)
 
-    print('predicting ' + head + ' done')
+    #print('predicting ' + head + ' done')
     return [head, seqL, score, pvalue]
 
 
@@ -166,7 +166,7 @@ lineNum = 0
 seq = ''
 flag = 0
 total_len = 0
-
+total_seq_num = 0
 
 if input_fa.endswith(".gz"):
     faLines = gzip.open(input_fa, 'rt')
@@ -178,6 +178,7 @@ else:
 for line in faLines :
     #print(line)
     lineNum += 1
+
     if flag == 0 and line[0] == '>' :
         print("   processing line " + str(lineNum))
         head = line.strip()[1:]
@@ -187,30 +188,33 @@ for line in faLines :
         flag += 1
     elif flag > 0 and line[0] == '>' :
         countN = seq.count("N")
-        if countN/len(seq) <= 0.3 and len(seq) >= cutoff_len :
-            print(head)
-            print("encode seq")
+        if (countN / len(seq)) <= 0.3 and (len(seq) >= cutoff_len) and (len(seq) < 2100000):
+            #print(head)
+            #print("encode seq")
             codefw = encodeSeq(seq)
 
-            print("reverse complement seq")
+            #print("reverse complement seq")
             seqR = Seq(seq).reverse_complement()
 
-            print("encode rc seqR\n")
+            #print("encode rc seqR")
             codebw = encodeSeq(seqR)
 
             code_list.append((head, codefw, codebw))
             total_len += len(seq)
+            total_seq_num += 1
 
             if len(code_list) % 100 == 0 :
             #if total_len > 100000:
-                print("   total_len: " + str(total_len))
+            #if len(code_list) > 0:
+                print("   total len: " + str(total_len))
+                print("   processing seqs num " + str(total_seq_num))
                 print("   processing line " + str(lineNum))
 
                 print("multiprocessing ")
                 with concurrent.futures.ProcessPoolExecutor(max_workers=core_num) as executor:
                     for res in executor.map(pred, code_list):
                         dvf_res_list.append(res)
-                print("multiprocessing done")
+                print("multiprocessing done\n")
 
                 code_list = []
                 total_len = 0
@@ -231,10 +235,11 @@ if flag > 0 :
         seqR = Seq(seq).reverse_complement()
         codebw = encodeSeq(seqR)
         code_list.append((head, codefw, codebw))
-
         total_len += len(seq)
+        total_seq_num += 1
 
     print("   total_len: " + str(total_len))
+    print("   processing seqs num " + str(total_seq_num))
     print("   processing line " + str(lineNum))
 
     with concurrent.futures.ProcessPoolExecutor(max_workers=core_num) as executor:
