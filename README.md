@@ -6,6 +6,7 @@ Authors: Jie Ren, Kai Song, Chao Deng, Nathan Ahlgren, Jed Fuhrman, Yi Li, Xiaoh
 
 Maintainer: Jie Ren renj@usc.edu, Chao Deng chaodeng@usc.edu
 
+🚀 News (01/29/2026): ✨ [DeepVirFinder v1.2](https://github.com/secdio/DeepVirFinder_protocol) is officially here—ready to use! 🎉 Try it now 💡
 
 ## Description
 
